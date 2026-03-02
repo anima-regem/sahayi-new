@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import './homepage.dart';
-import './about.dart';
-import './downloads.dart';
+
+import 'about.dart';
+import 'downloads.dart';
+import 'homepage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +13,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  List pages = [
+
+  static const _pages = <Widget>[
     HomePage(),
     DownloadsPage(),
     AboutPage(),
@@ -22,35 +23,30 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[_currentIndex],
-      backgroundColor: Colors.white,
-      bottomNavigationBar: CurvedNavigationBar(
-        index: 0,
-        animationDuration: const Duration(milliseconds: 300),
-        color: Color.fromARGB(255, 255, 245, 245),
-        backgroundColor: Colors.white,
-        buttonBackgroundColor: Colors.white,
-        onTap: ((value) {
+      body: _pages[_currentIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
           setState(() {
-            _currentIndex = value;
+            _currentIndex = index;
           });
-        }),
-        items: [
-          Image.asset(
-            'assets/icons/home.png',
-            width: 24,
-            color: Color.fromARGB(255, 89, 0, 0),
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Catalog',
           ),
-          Image.asset(
-            'assets/icons/download.png',
-            width: 24,
-            color: Color.fromARGB(255, 89, 0, 0),
+          NavigationDestination(
+            icon: Icon(Icons.download_outlined),
+            selectedIcon: Icon(Icons.download),
+            label: 'Downloads',
           ),
-          Image.asset(
-            'assets/icons/info.png',
-            width: 24,
-            color: Color.fromARGB(255, 89, 0, 0),
-          )
+          NavigationDestination(
+            icon: Icon(Icons.info_outline),
+            selectedIcon: Icon(Icons.info),
+            label: 'About',
+          ),
         ],
       ),
     );

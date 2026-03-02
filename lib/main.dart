@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:sahayi/db/model/data_model.dart';
-import './firebase_options.dart';
-import './screens/splashscreen.dart';
 
-void main() async {
+import 'config/app_config.dart';
+import 'core/storage_keys.dart';
+import 'providers/app_providers.dart';
+import 'screens/main_screen.dart';
+import 'screens/missing_config_screen.dart';
+import 'screens/splashscreen.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  if (!Hive.isAdapterRegistered(SubjectsModelAdapter().typeId)) {
-    Hive.registerAdapter(SubjectsModelAdapter());
-  }
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Hive.openBox<String>(StorageKeys.catalogBox);
+  await Hive.openBox<String>(StorageKeys.downloadsBox);
 
-  runApp(const Sahayi());
+  final config = AppConfig.fromEnvironment();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        appConfigProvider.overrideWithValue(config),
+      ],
+      child: SahayiApp(config: config),
+    ),
+  );
 }
 
-class Sahayi extends StatelessWidget {
-  const Sahayi({super.key});
+class SahayiApp extends StatelessWidget {
+  const SahayiApp({
+    super.key,
+    required this.config,
+  });
+
+  final AppConfig config;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +41,21 @@ class Sahayi extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Sahayi',
       theme: ThemeData(
+        useMaterial3: true,
         fontFamily: 'Poppins',
-        primarySwatch: Colors.red,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFB4233A),
+        ),
       ),
-      home: const Scaffold(
-        body: SplashScreen(),
-      ),
+      home: config.isValid
+          ? const Scaffold(
+              body: SplashScreen(
+                destination: HomeScreen(),
+              ),
+            )
+          : MissingConfigScreen(
+              missingFields: config.missingFields,
+            ),
     );
   }
 }
