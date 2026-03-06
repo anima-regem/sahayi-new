@@ -1,16 +1,63 @@
-# sahayi
+# Sahayi
 
-A new Flutter project.
+Sahayi is a Flutter app for browsing public Google Drive study materials and
+saving PDFs for offline access.
 
-## Getting Started
+## What It Does
 
-This project is a starting point for a Flutter application.
+- Loads a catalog from a configured Google Drive root folder.
+- Supports global search across file name and metadata.
+- Supports drill-down filters: `Department -> Semester -> Subject -> Category`.
+- Allows viewing PDFs in-app and opening them in external apps.
+- Downloads and caches files locally for offline usage.
+- Caches catalog metadata locally using Hive for faster startup.
 
-A few resources to get you started if this is your first Flutter project:
+## Prerequisites
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter SDK (Dart `>=3.0.0 <4.0.0`)
+- A Google Drive API key
+- A public Google Drive root folder ID containing your material hierarchy
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Configure And Run
+
+1. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+2. Run the app with required config:
+
+```bash
+flutter run \
+  --dart-define=DRIVE_API_KEY=YOUR_KEY \
+  --dart-define=DRIVE_ROOT_FOLDER_ID=YOUR_ROOT_FOLDER_ID
+```
+
+If either value is missing, the app shows a configuration error screen with the
+required command.
+
+## Expected Drive Structure
+
+The crawler expects folders in this order and indexes only PDF files at the
+category level:
+
+```text
+Root Folder
+└── Department
+    └── Semester
+        └── Subject
+            └── Category
+                └── *.pdf
+```
+
+## Development
+
+- Run tests: `flutter test`
+- Static analysis: `flutter analyze`
+
+## Notes
+
+- Google Drive files/folders must be publicly readable for API listing and
+  downloads to work.
+- Pull to refresh in the catalog screen after new files are added to Drive.
